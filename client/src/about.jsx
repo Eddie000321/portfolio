@@ -16,7 +16,7 @@ export default function About() {
             {/* Profile Image */}
             <div className="profile-image">
               <img
-                src="/api/placeholder/300/400"
+                src="/images/profile/eddie-lee-profile.jpg"
                 alt="Eddie Lee - Professional headshot"
                 className="profile-photo"
               />
