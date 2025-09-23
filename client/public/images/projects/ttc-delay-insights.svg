@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#991b1b" />
+      <stop offset="100%" stop-color="#ef4444" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" rx="28" fill="url(#bg)" />
+  <rect x="90" y="120" width="620" height="320" rx="24" fill="#111827" opacity="0.92" />
+  <rect x="130" y="160" width="260" height="220" rx="20" fill="#1f2937" opacity="0.95" />
+  <rect x="420" y="160" width="230" height="80" rx="16" fill="#dc2626" opacity="0.85" />
+  <rect x="420" y="260" width="230" height="80" rx="16" fill="#b91c1c" opacity="0.85" />
+  <rect x="420" y="360" width="160" height="48" rx="12" fill="#fbbf24" opacity="0.95" />
+  <text x="400" y="96" text-anchor="middle" font-size="40" font-family="'Inter', Arial, sans-serif" fill="#fee2e2">TTC Delay Insights</text>
+  <text x="500" y="391" text-anchor="middle" font-size="18" font-family="'Inter', Arial, sans-serif" fill="#111827">Generate Report</text>
+  <circle cx="210" cy="250" r="70" fill="#dc2626" opacity="0.85" />
+  <path d="M180 250 L225 210 L270 250 L225 290 Z" fill="#f8fafc" opacity="0.9" />
+  <rect x="155" y="330" width="110" height="16" rx="8" fill="#f8fafc" opacity="0.6" />
+  <rect x="155" y="360" width="150" height="16" rx="8" fill="#f8fafc" opacity="0.4" />
+  <polyline points="440,320 470,280 510,310 550,250 590,270" fill="none" stroke="#f8fafc" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+  <circle cx="470" cy="280" r="8" fill="#f8fafc" opacity="0.85" />
+  <circle cx="510" cy="310" r="8" fill="#f8fafc" opacity="0.85" />
+  <circle cx="550" cy="250" r="8" fill="#f8fafc" opacity="0.85" />
+  <circle cx="590" cy="270" r="8" fill="#f8fafc" opacity="0.85" />
+</svg>

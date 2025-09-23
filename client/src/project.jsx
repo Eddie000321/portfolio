@@ -1,71 +1,87 @@
 import React from 'react';
 
 /**
- * Project component - showcases portfolio projects with images and descriptions
- * Displays at least 3 projects with details about role and outcomes
+ * Project component - showcases featured portfolio projects with images and descriptions
+ * Highlights role, outcome, technologies, and key accomplishments for each project
  */
 export default function Project() {
   // Project data array for easy management
   const projects = [
     {
-      id: 1,
-      title: "E-Commerce React Application",
-      image: "/api/placeholder/400/300",
-      description: "A full-stack e-commerce platform built with React, Node.js, and MongoDB. Features include user authentication, product catalog, shopping cart, and payment integration.",
-      role: "Full Stack Developer",
-      outcome: "Developed a complete shopping platform with 99% uptime and secure payment processing. Implemented responsive design supporting desktop and mobile users.",
-      technologies: ["React", "Node.js", "MongoDB", "Express", "JWT", "Stripe API"],
-      githubLink: "https://github.com/eddie/ecommerce-app",
-      liveLink: "https://ecommerce-demo.netlify.app",
-      status: "Completed"
+      id: "ttc-delay-insights",
+      title: "TTC Delay Insights",
+      image: "/images/projects/ttc-delay-insights.svg",
+      description:
+        "End-to-end ETL and analytics project that cleans a decade of Toronto transit delay data and loads it into PostgreSQL for SQL-first exploration and API reporting.",
+      role: "Data Engineer & API Developer",
+      outcome:
+        "Automated ingestion for 10+ years of subway, streetcar, and bus delay events with reusable SQL views powering parameterized reports and a React dashboard.",
+      technologies: ["Python", "Pandas", "PostgreSQL", "Docker", "FastAPI", "React"],
+      highlights: [
+        "Standardized mixed Excel/CSV sources into a unified fact table",
+        "Containerized Postgres with seeded schema, indexes, and validation",
+        "Exposed analytics endpoints through FastAPI for the Vite frontend"
+      ],
+      githubLink: "https://github.com/Eddie000321/ttc-delay-insights",
+      liveLink: null,
+      status: "In Progress"
     },
     {
-      id: 2,
-      title: "Hospital Management System",
-      image: "/api/placeholder/400/300",
-      description: "A comprehensive hospital management system with patient records, appointment scheduling, and staff management. Built with modern database design principles.",
-      role: "Database Developer & Backend Engineer",
-      outcome: "Created an efficient system handling 1000+ patient records with optimized queries reducing data retrieval time by 60%. Implemented secure login system for different user roles.",
-      technologies: ["Oracle Database", "SQL", "PHP", "HTML5", "CSS3", "JavaScript"],
-      githubLink: "https://github.com/eddie/hospital-management",
+      id: "db-lab",
+      title: "DB Lab (Postgres Only)",
+      image: "/images/projects/db-lab.svg",
+      description:
+        "Self-contained PostgreSQL playground packaged with make targets for spinning up schemas, fixtures, and indexing experiments without impacting other environments.",
+      role: "Database Engineer",
+      outcome:
+        "Delivered a reproducible lab that provisions schema, seeds realistic relational datasets, and automates EXPLAIN-before/after benchmarks for index tuning.",
+      technologies: ["PostgreSQL", "Docker", "Make"],
+      highlights: [
+        "Scripted schema + seed workflows that mirror Prisma-generated models",
+        "Provided parameterized data generation to stress-test query plans",
+        "Documented backup/restore and EXPLAIN exercises via make targets"
+      ],
+      githubLink: "https://github.com/Eddie000321/db-lab",
       liveLink: null,
       status: "Completed"
     },
     {
-      id: 3,
-      title: "Real-Time Chat Application",
-      image: "/api/placeholder/400/300",
-      description: "A real-time messaging application with features like group chats, file sharing, and online status indicators. Built using WebSocket technology for instant communication.",
+      id: "docker-prisma-todo",
+      title: "Dockerized Express + Prisma Todo App",
+      image: "/images/projects/docker-prisma-todo.svg",
+      description:
+        "Full-stack to-do platform showcasing three Node.js backends, culminating in a Dockerized Express + PostgreSQL + Prisma deployment with session auth.",
       role: "Full Stack Developer",
-      outcome: "Successfully deployed application supporting 100+ concurrent users with real-time message delivery. Implemented end-to-end encryption for secure communication.",
-      technologies: ["React", "Socket.io", "Node.js", "Express", "MongoDB", "JWT"],
-      githubLink: "https://github.com/eddie/chat-app",
-      liveLink: "https://realtime-chat-demo.herokuapp.com",
-      status: "Completed"
-    },
-    {
-      id: 4,
-      title: "Personal Finance Tracker",
-      image: "/api/placeholder/400/300",
-      description: "A mobile-responsive web application for tracking personal expenses, budgeting, and financial goal setting with interactive charts and analytics.",
-      role: "Frontend Developer & UI/UX Designer",
-      outcome: "Designed and developed an intuitive interface with data visualization helping users track spending patterns. Achieved 95% user satisfaction in beta testing.",
-      technologies: ["React", "Chart.js", "Local Storage", "CSS3", "Responsive Design"],
-      githubLink: "https://github.com/eddie/finance-tracker",
-      liveLink: "https://personal-finance-tracker.vercel.app",
+      outcome:
+        "Delivered cookie-backed authentication, CRUD APIs, and container orchestration for local development while mapping a security hardening roadmap.",
+      technologies: ["Node.js", "Express", "PostgreSQL", "Prisma", "Docker"],
+      highlights: [
+        "Built progressive projects from simple REST server to full Docker stack",
+        "Implemented session-based auth with HttpOnly cookies across services",
+        "Outlined future hardening tasks including CSRF tokens and rate limiting"
+      ],
+      githubLink: "https://github.com/Eddie000321/backend-nodejs-expressjs-postgresql",
+      liveLink: null,
       status: "In Progress"
     },
     {
-      id: 5,
-      title: "Weather Forecast API Integration",
-      image: "/api/placeholder/400/300",
-      description: "A weather application that fetches real-time weather data from multiple APIs and provides detailed forecasts with location-based services.",
-      role: "API Integration Specialist",
-      outcome: "Integrated multiple weather APIs with 99.9% uptime and implemented caching system reducing API calls by 40%. Added geolocation features for automatic location detection.",
-      technologies: ["JavaScript", "REST APIs", "Geolocation API", "Local Storage", "CSS3"],
-      githubLink: "https://github.com/eddie/weather-app",
-      liveLink: "https://weather-forecast-app.netlify.app",
-      status: "Completed"
+      id: "vetchart-emr",
+      title: "VetChart EMR System",
+      image: "/images/projects/vetchart-emr.svg",
+      description:
+        "Full-stack electronic medical records platform tailored for veterinary clinics with scheduling, patient management, and operational observability dashboards.",
+      role: "Full Stack Developer",
+      outcome:
+        "Delivered a TypeScript-first monorepo with Dockerized environments, JWT-secured APIs, and ready-to-activate PostgreSQL persistence via Prisma.",
+      technologies: ["React", "TypeScript", "Express", "PostgreSQL", "Docker", "Tailwind CSS"],
+      highlights: [
+        "Implemented appointment, billing, and medical record flows with reusable components",
+        "Added Prometheus metrics, DB health checks, and backup scripts for operations",
+        "Prepared Prisma schema and migrations for scaling beyond the in-memory demo"
+      ],
+      githubLink: "https://github.com/Eddie000321/vet-chart",
+      liveLink: null,
+      status: "In Progress"
     }
   ];
 
@@ -74,8 +90,8 @@ export default function Project() {
       <div className="projects-content">
         <h1>My Projects</h1>
         <p className="projects-intro">
-          Here are some of the projects I've worked on that showcase my skills in
-          full-stack development, database design, and user experience.
+          Here are a few representative projects that demonstrate my experience with data
+          engineering, database tooling, and full-stack application delivery.
         </p>
 
         <div className="projects-grid">
@@ -123,6 +139,17 @@ export default function Project() {
                     ))}
                   </div>
                 </div>
+
+                {project.highlights && project.highlights.length > 0 && (
+                  <div className="highlights">
+                    <h4>Highlights:</h4>
+                    <ul className="highlight-list">
+                      {project.highlights.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {/* Project Links */}
                 <div className="project-links">
