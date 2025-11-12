@@ -1,11 +1,21 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import useAuth from "../src/hooks/useAuth.js";
 
 /**
  * Layout component - provides consistent navigation and header across all pages
  * Includes custom logo and navigation bar as required
  */
 export default function Layout() {
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, user, signout } = useAuth();
+
+  const handleSignOut = async () => {
+    await signout();
+    navigate("/");
+  };
+
   return (
     <>
       <header className="header">
@@ -27,8 +37,30 @@ export default function Layout() {
               <li><Link to="/project" className="nav-link">Projects</Link></li>
               <li><Link to="/services" className="nav-link">Services</Link></li>
               <li><Link to="/contact" className="nav-link">Contact</Link></li>
+              {!isAuthenticated && (
+                <>
+                  <li><Link to="/signin" className="nav-link">Sign In</Link></li>
+                  <li><Link to="/signup" className="nav-link">Sign Up</Link></li>
+                </>
+              )}
             </ul>
           </nav>
+
+          <div className="auth-status">
+            {isAuthenticated ? (
+              <div className="auth-avatar">
+                <div className="user-pill">
+                  <span className="user-name">{user?.name}</span>
+                  {isAdmin && <span className="role-badge">Admin</span>}
+                </div>
+                <button className="signout-button" onClick={handleSignOut}>
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <p className="guest-copy">Guest access</p>
+            )}
+          </div>
         </div>
       </header>
     </>

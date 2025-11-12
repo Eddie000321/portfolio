@@ -17,7 +17,7 @@ const signin = async (req, res) => {
       return res.status(401).json({ error: "Email and password don't match" });
     }
 
-    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
+    const token = jwt.sign({ id: user._id, role: user.role }, config.jwtSecret, {
       expiresIn: "1h",
     });
 
@@ -27,6 +27,7 @@ const signin = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (err) {

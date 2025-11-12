@@ -2,36 +2,44 @@ import mongoose from "mongoose";
 
 const QualificationSchema = new mongoose.Schema(
   {
-    title: {
+    institution: {
       type: String,
       trim: true,
-      required: "Qualification title is required",
+      required: "Institution is required",
     },
-    firstname: {
+    program: {
       type: String,
       trim: true,
-      required: "First name is required",
+      required: "Program or degree is required",
     },
-    lastname: {
+    status: {
       type: String,
       trim: true,
-      required: "Last name is required",
+      required: "Status is required",
     },
-    email: {
+    period: {
       type: String,
       trim: true,
-      lowercase: true,
-      required: "Email is required",
-      match: [/.+\@.+\..+/, "Please provide a valid email address"],
+      required: "Program period is required",
     },
-    completion: {
-      type: Date,
-      required: "Completion date is required",
+    location: {
+      type: String,
+      trim: true,
+      required: "Location is required",
+    },
+    type: {
+      type: String,
+      enum: ["college", "university", "certificate", "course", "bootcamp"],
+      default: "college",
     },
     description: {
       type: String,
       trim: true,
       required: "Description is required",
+    },
+    highlights: {
+      type: [String],
+      default: [],
     },
   },
   { timestamps: true }

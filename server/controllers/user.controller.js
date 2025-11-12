@@ -11,7 +11,13 @@ const sanitizeUser = (user) => {
 
 const create = async (req, res) => {
   try {
-    const user = new User(req.body);
+    const payload = {
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      role: "user",
+    };
+    const user = new User(payload);
     await user.save();
     res.status(201).json({
       message: "Successfully signed up!",
@@ -26,7 +32,7 @@ const create = async (req, res) => {
 
 const list = async (_req, res) => {
   try {
-    const users = await User.find().select("name email created updated");
+    const users = await User.find().select("name email role created updated");
     res.json(users);
   } catch (err) {
     res.status(400).json({
@@ -57,6 +63,11 @@ const read = (req, res) => {
 const update = async (req, res) => {
   try {
     let user = req.profile;
+    if (req.body.role && req.auth?.role !== "admin") {
+      return res.status(403).json({
+        error: "Only administrators can change user roles",
+      });
+    }
     if (req.body.password) {
       user.password = req.body.password;
     }

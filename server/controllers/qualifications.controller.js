@@ -1,9 +1,30 @@
 import Qualification from "../models/qualification.model.js";
 import dbErrorHandler from "../helpers/dbErrorHandler.js";
 
+const normalizeQualificationPayload = (payload = {}) => {
+  const normalized = { ...payload };
+  if ("highlights" in normalized) {
+    if (Array.isArray(normalized.highlights)) {
+      normalized.highlights = normalized.highlights
+        .map((item) => item.trim())
+        .filter(Boolean);
+    } else if (typeof normalized.highlights === "string") {
+      normalized.highlights = normalized.highlights
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    } else {
+      normalized.highlights = [];
+    }
+  }
+  return normalized;
+};
+
 const create = async (req, res) => {
   try {
-    const qualification = await Qualification.create(req.body);
+    const qualification = await Qualification.create(
+      normalizeQualificationPayload(req.body)
+    );
     res.status(201).json(qualification);
   } catch (err) {
     res.status(400).json({ error: dbErrorHandler.getErrorMessage(err) });
@@ -35,7 +56,7 @@ const updateById = async (req, res) => {
   try {
     const qualification = await Qualification.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      normalizeQualificationPayload(req.body),
       { new: true, runValidators: true }
     );
     if (!qualification) {

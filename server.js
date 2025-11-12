@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 
 import config from "./config/config.js";
+import seedAdmin from "./server/helpers/seedAdmin.js";
 import app from "./server/express.js";
 
 mongoose.Promise = global.Promise;
 
 mongoose
   .connect(config.mongoUri)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected");
+    await seedAdmin();
   })
   .catch((error) => {
     console.error("MongoDB connection error:", error.message);

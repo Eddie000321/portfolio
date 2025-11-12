@@ -1,6 +1,6 @@
 import express from "express";
 
-import { requireAuth } from "../middleware/auth.middleware.js";
+import { requireAdmin, requireAuth } from "../middleware/auth.middleware.js";
 import projectsCtrl from "../controllers/projects.controller.js";
 
 const router = express.Router();
@@ -8,13 +8,13 @@ const router = express.Router();
 router
   .route("/")
   .get(projectsCtrl.getAll)
-  .post(requireAuth, projectsCtrl.create)
-  .delete(requireAuth, projectsCtrl.deleteAll);
+  .post(requireAuth, requireAdmin, projectsCtrl.create)
+  .delete(requireAuth, requireAdmin, projectsCtrl.deleteAll);
 
 router
   .route("/:id")
   .get(projectsCtrl.getById)
-  .put(requireAuth, projectsCtrl.updateById)
-  .delete(requireAuth, projectsCtrl.deleteById);
+  .put(requireAuth, requireAdmin, projectsCtrl.updateById)
+  .delete(requireAuth, requireAdmin, projectsCtrl.deleteById);
 
 export default router;

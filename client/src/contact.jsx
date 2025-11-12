@@ -1,59 +1,133 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
+
+import useAuth from "./hooks/useAuth.js";
+import { apiClient } from "./services/apiClient.js";
 
 /**
  * Contact component - displays contact information and interactive form
- * Includes contact panel and form that captures user input and redirects to home
+ * Includes contact panel and form that captures user input and sends it to the backend
  */
 export default function Contact() {
-  // State management for form data
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  });
+  const initialFormState = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  };
 
-  // State for form submission status
+  const [formData, setFormData] = useState(initialFormState);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState({
+    submitting: false,
+    message: "",
+    error: null,
+  });
+  const [submissions, setSubmissions] = useState([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
+  const [submissionsError, setSubmissionsError] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [clearingAll, setClearingAll] = useState(false);
 
-  // Handle input changes
+  const { token, isAdmin } = useAuth();
+
+  // Fetch contact submissions for admin view
+  useEffect(() => {
+    if (!isAdmin) {
+      return;
+    }
+
+    const fetchSubmissions = async () => {
+      setSubmissionsLoading(true);
+      try {
+        const data = await apiClient.get("/contacts");
+        const sorted = [...data].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setSubmissions(sorted);
+        setSubmissionsError(null);
+      } catch (err) {
+        setSubmissionsError(err.message);
+      } finally {
+        setSubmissionsLoading(false);
+      }
+    };
+
+    fetchSubmissions();
+  }, [isAdmin]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmissionStatus({
+      submitting: true,
+      message: "",
+      error: null,
+    });
 
-    // Log form data (since form doesn't need to be fully functional initially)
-    console.log('Form submitted with data:', formData);
-
-    // Set submission status
-    setIsSubmitted(true);
-
-    // Show success message briefly, then redirect to home
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 2000);
+    try {
+      const savedContact = await apiClient.post("/contacts", formData);
+      setIsSubmitted(true);
+      setSubmissionStatus({
+        submitting: false,
+        message: "Thank you! Your message has been delivered successfully.",
+        error: null,
+      });
+      setFormData(initialFormState);
+      if (isAdmin) {
+        setSubmissions((prev) => [savedContact, ...prev]);
+      }
+    } catch (err) {
+      setSubmissionStatus({
+        submitting: false,
+        message: "",
+        error: err.message,
+      });
+    }
   };
 
-  // Reset form
   const resetForm = () => {
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+    setFormData(initialFormState);
     setIsSubmitted(false);
+    setSubmissionStatus({
+      submitting: false,
+      message: "",
+      error: null,
+    });
+  };
+
+  const handleDeleteSubmission = async (id) => {
+    if (!token) return;
+    setDeletingId(id);
+    try {
+      await apiClient.delete(`/contacts/${id}`, { token });
+      setSubmissions((prev) => prev.filter((submission) => submission._id !== id));
+    } catch (err) {
+      setSubmissionsError(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!token) return;
+    setClearingAll(true);
+    try {
+      await apiClient.delete("/contacts", { token });
+      setSubmissions([]);
+    } catch (err) {
+      setSubmissionsError(err.message);
+    } finally {
+      setClearingAll(false);
+    }
   };
 
   return (
@@ -139,15 +213,18 @@ export default function Contact() {
             <h2>Send Me a Message</h2>
             <p className="form-description">
               Fill out the form below and I'll get back to you soon.
-              <em>Note: This form captures your information and will redirect you to the home page.</em>
+              <em>Every message is saved in MongoDB and routed to the admin console.</em>
             </p>
+
+            {submissionStatus.error && (
+              <div className="form-error">{submissionStatus.error}</div>
+            )}
 
             {isSubmitted ? (
               <div className="success-message">
                 <div className="success-icon">✅</div>
                 <h3>Thank you for your message!</h3>
-                <p>I've received your message and will get back to you soon.</p>
-                <p>Redirecting to home page...</p>
+                <p>{submissionStatus.message}</p>
                 <button onClick={resetForm} className="reset-button">
                   Send Another Message
                 </button>
@@ -233,8 +310,12 @@ export default function Contact() {
                   ></textarea>
                 </div>
 
-                <button type="submit" className="submit-button">
-                  Send Message
+                <button
+                  type="submit"
+                  className="submit-button"
+                  disabled={submissionStatus.submitting}
+                >
+                  {submissionStatus.submitting ? "Sending..." : "Send Message"}
                 </button>
 
                 <p className="form-note">
@@ -259,6 +340,86 @@ export default function Contact() {
             <span>Currently available for new projects</span>
           </div>
         </div>
+
+        {isAdmin && (
+          <section className="admin-panel">
+            <div className="admin-panel-header">
+              <h2>Latest Contact Messages</h2>
+              <button
+                className="signout-button danger"
+                onClick={handleDeleteAll}
+                disabled={clearingAll || submissions.length === 0}
+              >
+                {clearingAll ? "Clearing..." : "Clear All"}
+              </button>
+            </div>
+
+            {submissionsError && (
+              <div className="form-error">{submissionsError}</div>
+            )}
+
+            {submissionsLoading ? (
+              <p>Loading submissions...</p>
+            ) : submissions.length === 0 ? (
+              <p className="text-muted">No messages have been submitted yet.</p>
+            ) : (
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>From</th>
+                      <th>Subject</th>
+                      <th>Received</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submissions.map((submission) => (
+                      <tr key={submission._id}>
+                        <td>
+                          <div className="table-contact">
+                            <strong>
+                              {submission.firstName} {submission.lastName}
+                            </strong>
+                            <span>{submission.email}</span>
+                            {submission.phone && (
+                              <span className="contact-chip">{submission.phone}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="table-subject">
+                            <p>{submission.subject}</p>
+                            <small>
+                              {submission.message.length > 80
+                                ? `${submission.message.slice(0, 80)}...`
+                                : submission.message}
+                            </small>
+                          </div>
+                        </td>
+                        <td>
+                          {new Date(submission.createdAt).toLocaleString("en-CA", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </td>
+                        <td>
+                          <button
+                            className="table-action danger"
+                            onClick={() => handleDeleteSubmission(submission._id)}
+                            disabled={deletingId === submission._id}
+                          >
+                            {deletingId === submission._id ? "Removing..." : "Delete"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </div>
   );
