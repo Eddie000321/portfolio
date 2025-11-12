@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import useAuth from "./hooks/useAuth.js";
 import { apiClient } from "./services/apiClient.js";
@@ -30,28 +30,36 @@ const Projects = () => {
   const [formFeedback, setFormFeedback] = useState(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [githubRepos, setGithubRepos] = useState([]);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState(null);
 
   const { isAdmin, token } = useAuth();
 
   const sortProjects = (items) =>
-    [...items].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    [...items].sort((a, b) => {
+      if (typeof a.order === "number" && typeof b.order === "number") {
+        return a.order - b.order;
+      }
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+  const loadProjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiClient.get("/projects");
+      setProjects(sortProjects(data));
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      setLoading(true);
-      try {
-        const data = await apiClient.get("/projects");
-        setProjects(sortProjects(data));
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+    loadProjects();
+  }, [loadProjects]);
 
   const parseList = (value) =>
     value
@@ -106,7 +114,7 @@ const Projects = () => {
         setFormFeedback({ type: "success", message: "Project updated successfully." });
       } else {
         const created = await apiClient.post("/projects", payload, { token });
-        setProjects((prev) => [created, ...prev]);
+        setProjects((prev) => sortProjects([...prev, created]));
         setFormFeedback({ type: "success", message: "Project added successfully." });
       }
       resetForm();
@@ -150,6 +158,99 @@ const Projects = () => {
       setFormFeedback({ type: "error", message: err.message });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const persistOrder = useCallback(
+    async (orderedProjects) => {
+      if (!token) {
+        return;
+      }
+      const payload = orderedProjects.map((project, index) => ({
+        id: project._id,
+        order: index,
+      }));
+      try {
+        const updated = await apiClient.patch(
+          "/projects/reorder",
+          { order: payload },
+          { token }
+        );
+        setProjects(sortProjects(updated));
+      } catch (err) {
+        setFormFeedback({ type: "error", message: err.message });
+      }
+    },
+    [token]
+  );
+
+  const moveProject = (projectId, direction) => {
+    setProjects((prev) => {
+      const index = prev.findIndex((project) => project._id === projectId);
+      if (index === -1) {
+        return prev;
+      }
+      const newIndex = direction === "up" ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= prev.length) {
+        return prev;
+      }
+      const updated = [...prev];
+      const [removed] = updated.splice(index, 1);
+      updated.splice(newIndex, 0, removed);
+      persistOrder(updated);
+      return updated;
+    });
+  };
+
+  const fetchGithubRepos = async () => {
+    if (!token) {
+      return;
+    }
+    setGithubLoading(true);
+    setGithubError(null);
+    try {
+      const repos = await apiClient.get("/github/repos", { token });
+      setGithubRepos(repos);
+    } catch (err) {
+      setGithubError(err.message);
+    } finally {
+      setGithubLoading(false);
+    }
+  };
+
+  const importRepo = async (repo) => {
+    if (!token) {
+      return;
+    }
+    setFormFeedback(null);
+    const payload = {
+      title: repo.repoName,
+      summary: repo.description || repo.repoName,
+      description:
+        repo.description ||
+        "Detailed case study coming soon. Explore the GitHub repository for implementation details.",
+      role: "Full Stack Developer",
+      outcome: "Delivered key functionality documented in the GitHub repository.",
+      status: "Completed",
+      technologies: repo.topics || [],
+      highlights: [],
+      githubLink: repo.htmlUrl,
+      liveLink: repo.homepage || "",
+      image: "",
+      githubRepoId: repo.id,
+      githubRepoName: repo.repoName,
+      githubRepoOwner: repo.fullName?.split("/")[0],
+      githubRepoUrl: repo.htmlUrl,
+    };
+    try {
+      const created = await apiClient.post("/projects", payload, { token });
+      setProjects((prev) => sortProjects([...prev, created]));
+      setFormFeedback({
+        type: "success",
+        message: `Imported ${repo.repoName} from GitHub.`,
+      });
+    } catch (err) {
+      setFormFeedback({ type: "error", message: err.message });
     }
   };
 
@@ -340,6 +441,68 @@ const Projects = () => {
                 )}
               </div>
             </form>
+            <div className="github-panel">
+              <div className="github-panel-header">
+                <div>
+                  <h3>GitHub repositories</h3>
+                  <p className="panel-subtitle">
+                    Fetch your latest repos and import them into the curated portfolio list.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="cta-button"
+                  onClick={fetchGithubRepos}
+                  disabled={githubLoading}
+                >
+                  {githubLoading ? "Fetching..." : "Fetch from GitHub"}
+                </button>
+              </div>
+              {githubError && <div className="form-error">{githubError}</div>}
+              {githubRepos.length > 0 && (
+                <div className="github-repos-grid">
+                  {githubRepos.map((repo) => {
+                    const isImported = projects.some(
+                      (project) => project.githubRepoId === repo.id
+                    );
+                    return (
+                      <div key={repo.id} className="github-repo-card">
+                        <div className="repo-card-header">
+                          <h4>{repo.repoName}</h4>
+                          <span className="repo-visibility">{repo.visibility}</span>
+                        </div>
+                        <p className="repo-description">
+                          {repo.description || "No description provided."}
+                        </p>
+                        <div className="repo-meta">
+                          <span>⭐ {repo.stars}</span>
+                          <span>🍴 {repo.forks}</span>
+                          {repo.language && <span>💻 {repo.language}</span>}
+                        </div>
+                        <div className="repo-actions">
+                          <a
+                            href={repo.htmlUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-link github-link"
+                          >
+                            View Repo
+                          </a>
+                          <button
+                            type="button"
+                            className="resource-action"
+                            disabled={isImported}
+                            onClick={() => importRepo(repo)}
+                          >
+                            {isImported ? "Imported" : "Import"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </section>
         )}
 
@@ -353,7 +516,7 @@ const Projects = () => {
           </p>
         ) : (
           <div className="projects-grid">
-            {projects.map((project) => (
+            {projects.map((project, index) => (
               <div key={project._id} className="project-card">
                 <div className="project-image">
                   {project.image ? (
@@ -441,6 +604,23 @@ const Projects = () => {
 
                   {isAdmin && (
                     <div className="admin-actions">
+                      <span className="order-pill">
+                        #{(project.order ?? index) + 1}
+                      </span>
+                      <button
+                        className="resource-action"
+                        onClick={() => moveProject(project._id, "up")}
+                        disabled={index === 0}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        className="resource-action"
+                        onClick={() => moveProject(project._id, "down")}
+                        disabled={index === projects.length - 1}
+                      >
+                        ↓
+                      </button>
                       <button
                         className="resource-action"
                         onClick={() => handleEdit(project)}

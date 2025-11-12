@@ -26,9 +26,18 @@ const normalizeProjectPayload = (payload = {}) => {
   return normalized;
 };
 
+const getNextOrder = async () => {
+  const lastProject = await Project.findOne().sort({ order: -1 }).lean();
+  return typeof lastProject?.order === "number" ? lastProject.order + 1 : 0;
+};
+
 const create = async (req, res) => {
   try {
-    const project = await Project.create(normalizeProjectPayload(req.body));
+    const payload = normalizeProjectPayload(req.body);
+    if (typeof payload.order !== "number") {
+      payload.order = await getNextOrder();
+    }
+    const project = await Project.create(payload);
     res.status(201).json(project);
   } catch (err) {
     res.status(400).json({ error: dbErrorHandler.getErrorMessage(err) });
@@ -37,7 +46,7 @@ const create = async (req, res) => {
 
 const getAll = async (_req, res) => {
   try {
-    const projects = await Project.find();
+    const projects = await Project.find().sort({ order: 1, createdAt: -1 });
     res.json(projects);
   } catch (_err) {
     res.status(500).json({ error: "Failed to fetch projects" });
@@ -96,6 +105,26 @@ const deleteAll = async (_req, res) => {
   }
 };
 
+const reorder = async (req, res) => {
+  const { order } = req.body;
+  if (!Array.isArray(order) || order.length === 0) {
+    return res.status(400).json({ error: "Order payload is required" });
+  }
+  try {
+    const bulkOps = order.map((item) => ({
+      updateOne: {
+        filter: { _id: item.id },
+        update: { $set: { order: item.order } },
+      },
+    }));
+    await Project.bulkWrite(bulkOps);
+    const projects = await Project.find().sort({ order: 1, createdAt: -1 });
+    res.json(projects);
+  } catch (_err) {
+    res.status(400).json({ error: "Failed to reorder projects" });
+  }
+};
+
 export default {
   create,
   getAll,
@@ -103,4 +132,5 @@ export default {
   updateById,
   deleteById,
   deleteAll,
+  reorder,
 };

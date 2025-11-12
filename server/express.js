@@ -7,6 +7,7 @@ import helmet from "helmet";
 
 import authRoutes from "./routes/auth.routes.js";
 import contactsRoutes from "./routes/contacts.routes.js";
+import githubRoutes from "./routes/github.routes.js";
 import projectsRoutes from "./routes/projects.routes.js";
 import qualificationsRoutes from "./routes/qualifications.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -27,5 +28,6 @@ app.use("/api/projects", projectsRoutes);
 app.use("/api/qualifications", qualificationsRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/github", githubRoutes);
 
 export default app;

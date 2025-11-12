@@ -12,6 +12,10 @@ router
   .delete(requireAuth, requireAdmin, projectsCtrl.deleteAll);
 
 router
+  .route("/reorder")
+  .patch(requireAuth, requireAdmin, projectsCtrl.reorder);
+
+router
   .route("/:id")
   .get(projectsCtrl.getById)
   .put(requireAuth, requireAdmin, projectsCtrl.updateById)

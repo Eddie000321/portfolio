@@ -51,6 +51,31 @@ const ProjectSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    githubRepoId: {
+      type: Number,
+      index: true,
+    },
+    githubRepoName: {
+      type: String,
+      trim: true,
+    },
+    githubRepoOwner: {
+      type: String,
+      trim: true,
+    },
+    githubRepoUrl: {
+      type: String,
+      trim: true,
+    },
+    order: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+    isFeatured: {
+      type: Boolean,
+      default: true,
+    },
   },
   { timestamps: true }
 );
