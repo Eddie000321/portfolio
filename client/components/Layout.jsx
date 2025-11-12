@@ -38,10 +38,7 @@ export default function Layout() {
               <li><Link to="/services" className="nav-link">Services</Link></li>
               <li><Link to="/contact" className="nav-link">Contact</Link></li>
               {!isAuthenticated && (
-                <>
-                  <li><Link to="/signin" className="nav-link">Sign In</Link></li>
-                  <li><Link to="/signup" className="nav-link">Sign Up</Link></li>
-                </>
+                <li><Link to="/auth" className="nav-link">Sign In / Up</Link></li>
               )}
             </ul>
           </nav>

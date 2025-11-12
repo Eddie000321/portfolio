@@ -6,8 +6,7 @@ import Contact from "./src/contact";
 import Education from "./src/education";
 import Project from "./src/project";
 import Services from "./src/services";
-import SignIn from "./src/signin";
-import SignUp from "./src/signup";
+import Auth from "./src/auth";
 import Layout from "./components/Layout";
 
 /**
@@ -25,8 +24,9 @@ const MainRouter = () => {
         <Route path="/project" element={<Project />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/signin" element={<Auth initialView="signin" />} />
+        <Route path="/signup" element={<Auth initialView="signup" />} />
       </Routes>
     </div>
   );

@@ -1678,6 +1678,16 @@ body {
   padding: 0 1.5rem;
 }
 
+.auth-container.combined {
+  max-width: 1100px;
+}
+
+.auth-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
 .auth-card {
   background-color: var(--bg-card);
   border-radius: 16px;
@@ -1694,6 +1704,60 @@ body {
 .auth-card p {
   color: var(--text-secondary);
   margin-bottom: 2rem;
+}
+
+.auth-panel {
+  background-color: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-panel.highlight {
+  background: linear-gradient(135deg, var(--primary-color), #4c1d95);
+  color: var(--text-light);
+  border: none;
+}
+
+.auth-panel.highlight .panel-subtitle,
+.auth-panel.highlight label {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.auth-panel.highlight input {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-light);
+}
+
+.auth-panel.highlight input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.panel-header h1 {
+  margin: 0.35rem 0 0.5rem;
+  color: inherit;
+}
+
+.panel-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.auth-panel.highlight .panel-eyebrow {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.panel-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
 .auth-form {
@@ -1773,6 +1837,15 @@ body {
   transform: translateY(-1px);
 }
 
+.submit-button.secondary {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.submit-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
 .guest-copy {
   color: var(--text-muted);
   font-weight: 600;
@@ -1816,6 +1889,14 @@ body {
 
   .study-progress {
     align-self: flex-start;
+  }
+
+  .auth-container.combined {
+    max-width: 640px;
+  }
+
+  .auth-panel {
+    padding: 2rem;
   }
 }
 
