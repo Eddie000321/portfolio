@@ -107,7 +107,8 @@ body {
 .navbar ul {
   list-style: none;
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: clamp(0.4rem, 1.5vw, 1.25rem);
   margin: 0;
   padding: 0;
 }
@@ -116,8 +117,10 @@ body {
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  font-size: clamp(0.9rem, 0.8rem + 0.2vw, 1.05rem);
+  padding: clamp(0.35rem, 0.3rem + 0.3vw, 0.6rem)
+    clamp(0.7rem, 0.5rem + 0.8vw, 1.2rem);
+  border-radius: 999px;
   transition: all 0.2s ease;
 }
 
