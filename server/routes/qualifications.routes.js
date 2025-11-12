@@ -12,6 +12,10 @@ router
   .delete(requireAuth, requireAdmin, qualificationsCtrl.deleteAll);
 
 router
+  .route("/reorder")
+  .patch(requireAuth, requireAdmin, qualificationsCtrl.reorder);
+
+router
   .route("/:id")
   .get(qualificationsCtrl.getById)
   .put(requireAuth, requireAdmin, qualificationsCtrl.updateById)

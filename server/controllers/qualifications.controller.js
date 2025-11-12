@@ -20,11 +20,22 @@ const normalizeQualificationPayload = (payload = {}) => {
   return normalized;
 };
 
+const getNextOrder = async () => {
+  const lastQualification = await Qualification.findOne()
+    .sort({ order: -1 })
+    .lean();
+  return typeof lastQualification?.order === "number"
+    ? lastQualification.order + 1
+    : 0;
+};
+
 const create = async (req, res) => {
   try {
-    const qualification = await Qualification.create(
-      normalizeQualificationPayload(req.body)
-    );
+    const payload = normalizeQualificationPayload(req.body);
+    if (typeof payload.order !== "number") {
+      payload.order = await getNextOrder();
+    }
+    const qualification = await Qualification.create(payload);
     res.status(201).json(qualification);
   } catch (err) {
     res.status(400).json({ error: dbErrorHandler.getErrorMessage(err) });
@@ -33,7 +44,10 @@ const create = async (req, res) => {
 
 const getAll = async (_req, res) => {
   try {
-    const qualifications = await Qualification.find();
+    const qualifications = await Qualification.find().sort({
+      order: 1,
+      createdAt: -1,
+    });
     res.json(qualifications);
   } catch (_err) {
     res.status(500).json({ error: "Failed to fetch qualifications" });
@@ -89,6 +103,29 @@ const deleteAll = async (_req, res) => {
   }
 };
 
+const reorder = async (req, res) => {
+  const { order } = req.body;
+  if (!Array.isArray(order) || order.length === 0) {
+    return res.status(400).json({ error: "Order payload is required" });
+  }
+  try {
+    const bulkOps = order.map((item) => ({
+      updateOne: {
+        filter: { _id: item.id },
+        update: { $set: { order: item.order } },
+      },
+    }));
+    await Qualification.bulkWrite(bulkOps);
+    const qualifications = await Qualification.find().sort({
+      order: 1,
+      createdAt: -1,
+    });
+    res.json(qualifications);
+  } catch (_err) {
+    res.status(400).json({ error: "Failed to reorder qualifications" });
+  }
+};
+
 export default {
   create,
   getAll,
@@ -96,4 +133,5 @@ export default {
   updateById,
   deleteById,
   deleteAll,
+  reorder,
 };

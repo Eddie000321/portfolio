@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import useAuth from "./hooks/useAuth.js";
 import { apiClient } from "./services/apiClient.js";
@@ -116,25 +116,31 @@ const Education = () => {
 
   const { isAdmin, token } = useAuth();
 
-  const sortQualifications = (items) =>
-    [...items].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const sortQualifications = useCallback((items) => {
+    return [...items].sort((a, b) => {
+      if (typeof a.order === "number" && typeof b.order === "number") {
+        return a.order - b.order;
+      }
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }, []);
+
+  const loadQualifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await apiClient.get("/qualifications");
+      setQualifications(sortQualifications(data));
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [sortQualifications]);
 
   useEffect(() => {
-    const fetchQualifications = async () => {
-      setLoading(true);
-      try {
-        const data = await apiClient.get("/qualifications");
-        setQualifications(sortQualifications(data));
-        setError(null);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQualifications();
-  }, []);
+    loadQualifications();
+  }, [loadQualifications]);
 
   const normalizeHighlights = (value) =>
     value
@@ -182,13 +188,15 @@ const resetForm = () => {
           payload,
           { token }
         );
-        setQualifications((prev) =>
-          prev.map((item) => (item._id === editingId ? updated : item))
+      setQualifications((prev) =>
+          sortQualifications(
+            prev.map((item) => (item._id === editingId ? updated : item))
+          )
         );
         setFormFeedback({ type: "success", message: "Entry updated successfully." });
       } else {
         const created = await apiClient.post("/qualifications", payload, { token });
-        setQualifications((prev) => [created, ...prev]);
+        setQualifications((prev) => sortQualifications([...prev, created]));
         setFormFeedback({ type: "success", message: "Entry added successfully." });
       }
       resetForm();
@@ -232,6 +240,47 @@ const resetForm = () => {
     }
   };
 
+  const persistOrder = useCallback(
+    async (orderedItems) => {
+      if (!token) {
+        return;
+      }
+      const payload = orderedItems.map((item, index) => ({
+        id: item._id,
+        order: index,
+      }));
+      try {
+        const updated = await apiClient.patch(
+          "/qualifications/reorder",
+          { order: payload },
+          { token }
+        );
+        setQualifications(sortQualifications(updated));
+      } catch (err) {
+        setFormFeedback({ type: "error", message: err.message });
+      }
+    },
+    [token, sortQualifications]
+  );
+
+  const moveQualification = (qualificationId, direction) => {
+    setQualifications((prev) => {
+      const index = prev.findIndex((item) => item._id === qualificationId);
+      if (index === -1) {
+        return prev;
+      }
+      const newIndex = direction === "up" ? index - 1 : index + 1;
+      if (newIndex < 0 || newIndex >= prev.length) {
+        return prev;
+      }
+      const updated = [...prev];
+      const [removed] = updated.splice(index, 1);
+      updated.splice(newIndex, 0, removed);
+      persistOrder(updated);
+      return updated;
+    });
+  };
+
   return (
     <div className="education-container">
       <div className="education-content">
@@ -253,7 +302,7 @@ const resetForm = () => {
             </p>
           ) : (
             <div className="education-timeline">
-              {qualifications.map((qualification) => (
+              {qualifications.map((qualification, index) => (
                 <div
                   key={qualification._id}
                   className={`education-item ${qualification.type || ""}`}
@@ -286,6 +335,25 @@ const resetForm = () => {
 
                     {isAdmin && (
                       <div className="admin-actions">
+                        <span className="order-pill">
+                          #{(qualification.order ?? index) + 1}
+                        </span>
+                        <button
+                          className="resource-action"
+                          onClick={() => moveQualification(qualification._id, "up")}
+                          disabled={index === 0}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          className="resource-action"
+                          onClick={() =>
+                            moveQualification(qualification._id, "down")
+                          }
+                          disabled={index === qualifications.length - 1}
+                        >
+                          ↓
+                        </button>
                         <button
                           className="resource-action"
                           onClick={() => handleEdit(qualification)}
