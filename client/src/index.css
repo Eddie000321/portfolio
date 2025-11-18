@@ -1980,6 +1980,57 @@ body {
   }
 }
 
+/* ===== GLOBAL LOADING OVERLAY ===== */
+.backend-loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.15);
+  backdrop-filter: blur(2px);
+  z-index: 1200;
+}
+
+.backend-loading-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background-color: var(--bg-card);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.backend-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  animation: backend-spin 0.9s linear infinite;
+}
+
+.backend-loading-title {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.backend-loading-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+@keyframes backend-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== UTILITY CLASSES ===== */
 .text-center {
   text-align: center;
