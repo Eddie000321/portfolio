@@ -40,10 +40,8 @@ const BackendLoadingOverlay = () => {
       <div className="backend-loading-card">
         <div className="backend-loading-spinner" aria-hidden="true" />
         <div>
-          <p className="backend-loading-title">잠시만 기다려주세요.</p>
-          <p className="backend-loading-subtitle">
-            백엔드와 통신 중입니다. 데이터를 불러오는 중이에요.
-          </p>
+          <p className="backend-loading-title">Please wait...</p>
+          <p className="backend-loading-subtitle">Contacting backend and loading data.</p>
         </div>
       </div>
     </div>
