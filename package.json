@@ -8,9 +8,13 @@
   "devDependencies": {
     "@babel/core": "^7.27.1",
     "@babel/preset-env": "^7.27.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "babel-loader": "^10.0.0",
     "concurrently": "^9.1.2",
-    "nodemon": "^3.1.10"
+    "jsdom": "^27.2.0",
+    "nodemon": "^3.1.10",
+    "vitest": "^4.0.14"
   },
   "scripts": {
     "dev": "concurrently 'vite' \"nodemon server.js\"",
