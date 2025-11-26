@@ -172,6 +172,17 @@ body {
   line-height: 1.7;
 }
 
+.highlight-note {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
 .mission-statement {
   background-color: var(--bg-secondary);
   padding: 2rem;

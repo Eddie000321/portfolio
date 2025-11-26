@@ -23,6 +23,11 @@ export default function Home() {
               Welcome to my portfolio where you can follow my learning journey and projects.
             </p>
 
+            <p className="highlight-note">
+              New: I’m adding fresh cloud and full-stack projects every week—check back often
+              to see what’s new.
+            </p>
+
             {/* Mission Statement */}
             <div className="mission-statement">
               <h3>My Mission</h3>
